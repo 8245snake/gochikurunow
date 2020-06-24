@@ -92,7 +92,7 @@ func extractDateFromTitleString(title string) string {
 
 //extractPrice 金額を抽出
 func extractPrice(raw string) string {
-	price := strings.Replace(raw, "（税込）", "", -1)
+	price := strings.Replace(raw, "円（税込）", "", -1)
 	return strings.TrimSpace(price)
 
 }

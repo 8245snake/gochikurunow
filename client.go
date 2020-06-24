@@ -30,7 +30,7 @@ func NewGochiClient(mail string, password string) (*GochiClient, error) {
 	client := &http.Client{Jar: jar}
 	token := getToken(client)
 	if token == "" {
-		return nil, fmt.Errorf("認証に失敗しました")
+		return nil, fmt.Errorf("ページの取得に失敗しました")
 	}
 	req := createPostRequestJSON(mail, password, token)
 	api := &GochiClient{client: client, request: req}
@@ -51,7 +51,9 @@ func (api *GochiClient) GetMenu() (MenueInfo, error) {
 		fmt.Printf("%v\n", err)
 		return menue, err
 	}
-	fmt.Printf("%s\n", head)
+	if head == "" {
+		return menue, fmt.Errorf("ページの取得に失敗しました")
+	}
 	menue.Date = extractDateFromTitleString(head)
 
 	doc.Find("div.productItem").Each(func(i int, productNode *goquery.Selection) {
@@ -61,7 +63,7 @@ func (api *GochiClient) GetMenu() (MenueInfo, error) {
 		maker := content.Find("span.truncate").Text()
 		name := content.Find("p.truncate").Text()
 		price := content.Find("div.productPrice").Text()
-		price = extractPrice(price)
+		price = extractPrice(price) + "円"
 		amount := content.Find("div.productAmountInner").Find("input").AttrOr("value", "0")
 		orderedAmount := 0
 		if val, err := strconv.Atoi(amount); err == nil {
